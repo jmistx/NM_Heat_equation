@@ -49,7 +49,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AP.Logic\HE.Logic.csproj">
+    <ProjectReference Include="..\HE.Logic\HE.Logic.csproj">
       <Project>{fef71ecd-3fe3-4027-bba0-5748903cc6b6}</Project>
       <Name>HE.Logic</Name>
     </ProjectReference>
