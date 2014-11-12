@@ -81,7 +81,7 @@ namespace HE.Logic
             {
                 diagonal[spaceNodesCount - 3, 0] = (-1) * k / (h * h + 2 * k);
                 diagonal[spaceNodesCount - 3, 1] = 1;
-                rightPart[0] = ((k * h * h) / (h * h + 2 * k)) *
+                rightPart[spaceNodesCount - 3] = ((k * h * h) / (h * h + 2 * k)) *
                                (1.0 / (h * h) * RightBoundCondition(currentTime) + previousLayer[spaceNodesCount - 2] / k + Function(nodes[spaceNodesCount - 2], currentTime)); 
             }
             for (int i = 1; i < innerNodesCount - 1; i++)

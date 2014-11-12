@@ -29,27 +29,45 @@ namespace HE.Test
         }
 
         [Test]
+        public void SolveTestExample3()
+        {
+            var solver = new HeatEquationSolver
+            {
+                LeftBoundCondition = t => 6,
+                RightBoundCondition = t => 1
+            };
+
+            const int n = 20;
+            const int k = 200;
+            var answer1 = solver.Solve(10, n, k);
+
+            Func<double, double, double> exactAnswer = (x, t) => 6 + (-5) * x;
+            var maximumOfDifference = Compute.MaximumOfDifference(answer1, exactAnswer);
+            Expect.FloatsAreEqual(0, maximumOfDifference);
+        }
+
+        [Test]
         public void SolveTestExample2WithSecondOrderOfConvergenceForSpaceStep()
         {
-            var solver = new HeatEquationSolver {Function = (x, t) => sin(Pi*x) };
-            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * (1 - exp(-Pi * Pi * t)) * (1 / (Pi * Pi));
+            var solver = new HeatEquationSolver {Function = (x, t) => 1000 * sin(Pi*x) };
+            Func<double, double, double> exactAnswer = (x, t) => 1000 * sin(Pi * x) * (1 - exp(-Pi * Pi * t)) * (1 / (Pi * Pi));
 
             Expect.OrderOfConvergenceIs(
                 orderOfConvergence: 2, 
-                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: param, timeIntervals: 20), 
+                forFunction: param => solver.Solve(timeOfEnd: 0.7, spaceIntervals: param, timeIntervals: 2000), 
                 toFunction: exactAnswer, 
-                startParameter: 40);
+                startParameter: 60);
         }
 
         [Test]
         public void SolveTestExampleWithSecondOrderOfConvergenceForSpaceStep()
         {
-            var solver = new HeatEquationSolver { StartCondition = x => sin(Pi*x) };
-            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * exp(-Pi * Pi * t);
+            var solver = new HeatEquationSolver { StartCondition = x => 1000 * sin(Pi * x) };
+            Func<double, double, double> exactAnswer = (x, t) => 1000 * sin(Pi * x) * exp(-Pi * Pi * t);
 
             Expect.OrderOfConvergenceIs(
                 orderOfConvergence: 2, 
-                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: param, timeIntervals: 20), 
+                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: param, timeIntervals: 2000), 
                 toFunction: exactAnswer, 
                 startParameter: 40);
         }
