@@ -46,11 +46,11 @@ namespace HE.Test
             var solver = new EquationSolver(leftBoundary, rightBoundary, leftBoundCondition, rightBoundCondition,
                 startCondition, function);
 
-            var n = 10;
+            var n = 4;
             const int k = 20;
             var answer1 = solver.Solve(5.0, n, k);
 
-            n = 100;
+            n = 40;
             var answer2 = solver.Solve(5.0, n, k);
 
             var maximumOfDifference1 = MaximumOfDifference(answer1, exactAnswer);
@@ -59,7 +59,7 @@ namespace HE.Test
             var maximumOfDifference2 = MaximumOfDifference(answer2, exactAnswer);
             var exponent2 = Math.Floor(Math.Abs(Math.Log10(Math.Abs(maximumOfDifference2))));
 
-            Assert.AreEqual(2, exponent2 - exponent1);
+            Assert.AreEqual(2, Math.Abs(exponent2 - exponent1));
         }
 
         private double MaximumOfDifference(EquationSolveAnswer answer, Func<double, double, double> exactAnswer)

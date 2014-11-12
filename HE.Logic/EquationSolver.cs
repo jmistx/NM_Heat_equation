@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 
 namespace HE.Logic
 {
@@ -40,11 +41,14 @@ namespace HE.Logic
 
             InitializeFirstLayer(currentLayer, spaceNodesCount, answer);
 
+            var timeStep = (timeOfEnd / timeIntervals);
+            var spaceStep = (_rightBoundary - _leftBoundary)/spaceIntervals;
+
             for (int i = 1; i < timeNodesCount; i++)
             {
-                var currentTime = i*(timeOfEnd/timeIntervals);
+                var currentTime = i*timeStep;
                 SwapLayers(ref currentLayer, ref previousLayer);
-                SolveNextLayer(previousLayer, currentLayer, currentTime);
+                SolveNextLayer(previousLayer, currentLayer, currentTime, answer.Nodes, timeStep, spaceStep);
             }
 
             SaveCurrentLayer(currentLayer, answer);
@@ -67,16 +71,95 @@ namespace HE.Logic
             currentLayer = temp;
         }
 
-        private void SolveNextLayer(double[] previousLayer, double[] currentLayer, double currentTime)
+        private void SolveNextLayer(double[] previousLayer, double[] currentLayer, double currentTime, double[] nodes, double timeStep, double spaceStep)
         {
             var spaceNodesCount = currentLayer.Length;
+
+            var k = timeStep;
+            var h = spaceStep;
+
+            var innerNodesCount = spaceNodesCount - 2;
+            var diagonal = new double[innerNodesCount, 3];
+            var rightPart = new double[innerNodesCount];
+
+            {
+                diagonal[0, 1] = 1;
+                diagonal[0, 2] = (-1) * k / (h * h + 2 * k);
+                rightPart[0] = ((k * h * h) / (h * h + 2 * k)) *
+                               (1.0 / (h * h) * _leftBoundCondition(currentTime) + previousLayer[1] / k + _function(nodes[1], currentTime));                
+            }
+            {
+                diagonal[spaceNodesCount - 3, 0] = (-1) * k / (h * h + 2 * k);
+                diagonal[spaceNodesCount - 3, 1] = 1;
+                rightPart[0] = ((k * h * h) / (h * h + 2 * k)) *
+                               (1.0 / (h * h) * _rightBoundCondition(currentTime) + previousLayer[spaceNodesCount - 2] / k + _function(nodes[spaceNodesCount - 2], currentTime)); 
+            }
+            for (int i = 1; i < innerNodesCount - 1; i++)
+            {
+                diagonal[i, 0] = -1/(h*h);
+                diagonal[i, 1] = 1/k + 2/(h*h);
+                diagonal[i, 2] = -1/(h*h);
+                rightPart[i] = previousLayer[i + 1]/k + _function(nodes[i + 1], currentTime);
+            }
+
+            var calculatedLayerValues = SolveSystemOfLinearEquations(diagonal, rightPart);
 
             currentLayer[0] = _leftBoundCondition(currentTime);
             currentLayer[spaceNodesCount - 1] = _rightBoundCondition(currentTime);
 
-            for (int i = 1; i > previousLayer.Length; i++)
+            for (int i = 1; i < spaceNodesCount - 1; i++)
             {
-                currentLayer[i] = previousLayer[i];
+                currentLayer[i] = calculatedLayerValues[i - 1];
+            }
+        }
+
+        public double[] SolveSystemOfLinearEquations(double[,] diagonal, double[] rightPart)
+        {
+            var n = diagonal.GetLength(0);
+            var result = new double[n];
+            var cModified = new double[n];
+            var fModified = new double[n];
+            ValidateMatrix(diagonal, n);
+
+            {
+                int i = 0;
+
+                double c = diagonal[i, 1];
+                double f = rightPart[i];
+
+                cModified[i] = c;
+                fModified[i] = f;
+            }
+
+            for (int i = 1; i < n; i++)
+            {
+                double a = diagonal[i, 0];
+                double c = diagonal[i, 1];
+                double b = diagonal[i - 1, 2];
+                double f = rightPart[i];
+
+                cModified[i] = c - a / cModified[i - 1] * b;
+                fModified[i] = f - a * fModified[i - 1] / cModified[i - 1];
+            }
+
+            result[n - 1] = fModified[n - 1] / cModified[n - 1];
+            for (int i = (n - 1) - 1; i >= 0; i--)
+            {
+                double b = diagonal[i, 2];
+                result[i] = (fModified[i] - b * result[i + 1]) / cModified[i];
+            }
+            return result;
+        }
+
+        private static void ValidateMatrix(double[,] diagonal, int n)
+        {
+            if (diagonal[0, 0] != 0)
+            {
+                throw new ArgumentException("A[0] must be 0");
+            }
+            if (diagonal[n - 1, 2] != 0)
+            {
+                throw new ArgumentException("B[n-1] must be 0");
             }
         }
 
