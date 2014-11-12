@@ -7,36 +7,78 @@ namespace HE.Test
     [TestFixture]
     public class EquationSolverShould
     {
+        private const double Pi = Math.PI;
+        private readonly Func<double, double> sin = Math.Sin;
+        private readonly Func<double, double> exp = Math.Exp;
+
         [Test]
         public void SolveTestExample()
         {
-            var exactAnswer =
-                new Func<double, double, double>((x, t) => Math.Sin(Math.PI * x) * Math.Exp(-Math.PI * Math.PI * t));
-
             var solver = new HeatEquationSolver
             {
-                StartCondition = x => Math.Sin(Math.PI * x),
+                StartCondition = x => sin(Pi * x),
             };
 
             const int n = 20000;
             const int k = 200;
             var answer1 = solver.Solve(0.001, n, k);
 
+            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * exp(-Pi * Pi * t);
             var maximumOfDifference = Compute.MaximumOfDifference(answer1, exactAnswer);
             Expect.FloatsAreEqual(0, maximumOfDifference);
         }
 
         [Test]
-        public void SolveTestExampleWithSecondOrderOfConvergenceForSpaceStep()
+        public void SolveTestExample2WithSecondOrderOfConvergenceForSpaceStep()
         {
-            var solver = new HeatEquationSolver { StartCondition = x => Math.Sin(Math.PI*x) };
-            var exactAnswer = new Func<double, double, double>((x, t) => Math.Sin(Math.PI * x) * Math.Exp(-Math.PI * Math.PI * t));
+            var solver = new HeatEquationSolver {Function = (x, t) => sin(Pi*x) };
+            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * (1 - exp(-Pi * Pi * t)) * (1 / (Pi * Pi));
 
-            Func<int, EquationSolveAnswer> testFunction = num => solver.Solve(timeOfEnd: 0.001, spaceIntervals: num, timeIntervals: 20);
-
-            Expect.ExpectOrderOfConvergence(2, forFunction: testFunction, toFunction: exactAnswer, startParameter: 40);
+            Expect.OrderOfConvergenceIs(
+                orderOfConvergence: 2, 
+                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: param, timeIntervals: 20), 
+                toFunction: exactAnswer, 
+                startParameter: 40);
         }
 
+        [Test]
+        public void SolveTestExampleWithSecondOrderOfConvergenceForSpaceStep()
+        {
+            var solver = new HeatEquationSolver { StartCondition = x => sin(Pi*x) };
+            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * exp(-Pi * Pi * t);
+
+            Expect.OrderOfConvergenceIs(
+                orderOfConvergence: 2, 
+                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: param, timeIntervals: 20), 
+                toFunction: exactAnswer, 
+                startParameter: 40);
+        }
+
+        [Test]
+        public void SolveTestExample1WithFirstOrderOfConvergenceForTimeStep()
+        {
+            var solver = new HeatEquationSolver { StartCondition = x => sin(Pi * x) };
+            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * exp(-Pi * Pi * t);
+
+            Expect.OrderOfConvergenceIs(
+                orderOfConvergence: 1, 
+                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: 200, timeIntervals: param), 
+                toFunction: exactAnswer, 
+                startParameter: 40);
+        }
+
+        [Test]
+        public void SolveTestExample2WithFirstOrderOfConvergenceForTimeStep()
+        {
+            var solver = new HeatEquationSolver { Function = (x, t) => sin(Pi * x) };
+            Func<double, double, double> exactAnswer = (x, t) => sin(Pi * x) * (1 - exp(-Pi * Pi * t)) * (1 / (Pi * Pi));
+
+            Expect.OrderOfConvergenceIs(
+                orderOfConvergence: 1, 
+                forFunction: param => solver.Solve(timeOfEnd: 0.001, spaceIntervals: 200, timeIntervals: param), 
+                toFunction: exactAnswer, 
+                startParameter: 40);
+        }
 
         [Test]
         public void SolveTrivialEquationExactly()
