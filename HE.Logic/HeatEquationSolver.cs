@@ -3,24 +3,14 @@ using System.Security.Cryptography;
 
 namespace HE.Logic
 {
-    public class EquationSolver
+    public class HeatEquationSolver
     {
-        private readonly double _leftBoundary;
-        private readonly double _rightBoundary;
-        private readonly Func<double, double> _leftBoundCondition;
-        private readonly Func<double, double> _rightBoundCondition;
-        private readonly Func<double, double> _startCondition;
-        private readonly Func<double, double, double> _function;
-
-        public EquationSolver(double leftBoundary, double rightBoundary, Func<double, double> leftBoundCondition, Func<double, double> rightBoundCondition, Func<double, double> startCondition, Func<double, double, double> function)
-        {
-            _leftBoundary = leftBoundary;
-            _rightBoundary = rightBoundary;
-            _leftBoundCondition = leftBoundCondition;
-            _rightBoundCondition = rightBoundCondition;
-            _startCondition = startCondition;
-            _function = function;
-        }
+        public double LeftBoundary = 0;
+        public double RightBoundary = 1;
+        public Func<double, double> LeftBoundCondition = t => 0;
+        public Func<double, double> RightBoundCondition = t => 0;
+        public Func<double, double> StartCondition = x => 0;
+        public Func<double, double, double> Function = (x, t) => 0;
 
         public EquationSolveAnswer Solve(double timeOfEnd, int spaceIntervals, int timeIntervals)
         {
@@ -42,7 +32,7 @@ namespace HE.Logic
             InitializeFirstLayer(currentLayer, spaceNodesCount, answer);
 
             var timeStep = (timeOfEnd / timeIntervals);
-            var spaceStep = (_rightBoundary - _leftBoundary)/spaceIntervals;
+            var spaceStep = (RightBoundary - LeftBoundary)/spaceIntervals;
 
             for (int i = 1; i < timeNodesCount; i++)
             {
@@ -86,26 +76,26 @@ namespace HE.Logic
                 diagonal[0, 1] = 1;
                 diagonal[0, 2] = (-1) * k / (h * h + 2 * k);
                 rightPart[0] = ((k * h * h) / (h * h + 2 * k)) *
-                               (1.0 / (h * h) * _leftBoundCondition(currentTime) + previousLayer[1] / k + _function(nodes[1], currentTime));                
+                               (1.0 / (h * h) * LeftBoundCondition(currentTime) + previousLayer[1] / k + Function(nodes[1], currentTime));                
             }
             {
                 diagonal[spaceNodesCount - 3, 0] = (-1) * k / (h * h + 2 * k);
                 diagonal[spaceNodesCount - 3, 1] = 1;
                 rightPart[0] = ((k * h * h) / (h * h + 2 * k)) *
-                               (1.0 / (h * h) * _rightBoundCondition(currentTime) + previousLayer[spaceNodesCount - 2] / k + _function(nodes[spaceNodesCount - 2], currentTime)); 
+                               (1.0 / (h * h) * RightBoundCondition(currentTime) + previousLayer[spaceNodesCount - 2] / k + Function(nodes[spaceNodesCount - 2], currentTime)); 
             }
             for (int i = 1; i < innerNodesCount - 1; i++)
             {
                 diagonal[i, 0] = -1/(h*h);
                 diagonal[i, 1] = 1/k + 2/(h*h);
                 diagonal[i, 2] = -1/(h*h);
-                rightPart[i] = previousLayer[i + 1]/k + _function(nodes[i + 1], currentTime);
+                rightPart[i] = previousLayer[i + 1]/k + Function(nodes[i + 1], currentTime);
             }
 
             var calculatedLayerValues = SolveSystemOfLinearEquations(diagonal, rightPart);
 
-            currentLayer[0] = _leftBoundCondition(currentTime);
-            currentLayer[spaceNodesCount - 1] = _rightBoundCondition(currentTime);
+            currentLayer[0] = LeftBoundCondition(currentTime);
+            currentLayer[spaceNodesCount - 1] = RightBoundCondition(currentTime);
 
             for (int i = 1; i < spaceNodesCount - 1; i++)
             {
@@ -167,7 +157,7 @@ namespace HE.Logic
         {
             for (var i = 0; i < spaceNodesCount; i++)
             {
-                previousLayer[i] = _startCondition(answer.Nodes[i]);
+                previousLayer[i] = StartCondition(answer.Nodes[i]);
             }
         }
 
@@ -175,7 +165,7 @@ namespace HE.Logic
         {
             for (var i = 0; i < spaceNodesCount; i++)
             {
-                answer.Nodes[i] = _leftBoundary + (_rightBoundary*i)/spaceIntervals;
+                answer.Nodes[i] = LeftBoundary + (RightBoundary*i)/spaceIntervals;
             }
         }
     }

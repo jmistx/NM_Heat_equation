@@ -10,83 +10,38 @@ namespace HE.Test
         [Test]
         public void SolveTestExample()
         {
-            var leftBoundCondition = new Func<double, double>(t => 0);
-            var rightBoundCondition = new Func<double, double>(t => 0);
-            var startCondition = new Func<double, double>(x => Math.Sin(Math.PI * x));
-            var function = new Func<double, double, double>((x, t) => 0);
-            const int leftBoundary = 0;
-            const double rightBoundary = 1.0;
             var exactAnswer =
                 new Func<double, double, double>((x, t) => Math.Sin(Math.PI * x) * Math.Exp(-Math.PI * Math.PI * t));
 
-            var solver = new EquationSolver(leftBoundary, rightBoundary, leftBoundCondition, rightBoundCondition,
-                startCondition, function);
+            var solver = new HeatEquationSolver
+            {
+                StartCondition = x => Math.Sin(Math.PI * x),
+            };
 
             const int n = 20000;
             const int k = 200;
             var answer1 = solver.Solve(0.001, n, k);
 
-            var maximumOfDifference = MaximumOfDifference(answer1, exactAnswer);
+            var maximumOfDifference = Compute.MaximumOfDifference(answer1, exactAnswer);
             Expect.FloatsAreEqual(0, maximumOfDifference);
         }
 
         [Test]
         public void SolveTestExampleWithSecondOrderOfConvergenceForSpaceStep()
         {
-            var leftBoundCondition = new Func<double, double>(t => 0);
-            var rightBoundCondition = new Func<double, double>(t => 0);
-            var startCondition = new Func<double, double>(x => Math.Sin(Math.PI*x));
-            var function = new Func<double, double, double>((x, t) => 0);
-            const int leftBoundary = 0;
-            const double rightBoundary = 1.0;
-            var exactAnswer =
-                new Func<double, double, double>((x, t) => Math.Sin(Math.PI*x)*Math.Exp(-Math.PI*Math.PI*t));
+            var solver = new HeatEquationSolver { StartCondition = x => Math.Sin(Math.PI*x) };
+            var exactAnswer = new Func<double, double, double>((x, t) => Math.Sin(Math.PI * x) * Math.Exp(-Math.PI * Math.PI * t));
 
-            var solver = new EquationSolver(leftBoundary, rightBoundary, leftBoundCondition, rightBoundCondition,
-                startCondition, function);
+            Func<int, EquationSolveAnswer> testFunction = num => solver.Solve(timeOfEnd: 0.001, spaceIntervals: num, timeIntervals: 20);
 
-            var n = 40;
-            const int k = 20;
-            var answer1 = solver.Solve(0.001, n, k);
-
-            n = 400;
-            var answer2 = solver.Solve(0.001, n, k);
-
-            var maximumOfDifference1 = MaximumOfDifference(answer1, exactAnswer);
-            var exponent1 = Math.Floor(Math.Abs(Math.Log10(Math.Abs(maximumOfDifference1))));
-
-            var maximumOfDifference2 = MaximumOfDifference(answer2, exactAnswer);
-            var exponent2 = Math.Floor(Math.Abs(Math.Log10(Math.Abs(maximumOfDifference2))));
-
-            Assert.AreEqual(2, Math.Abs(exponent2 - exponent1));
+            Expect.ExpectOrderOfConvergence(2, forFunction: testFunction, toFunction: exactAnswer, startParameter: 40);
         }
 
-        private double MaximumOfDifference(EquationSolveAnswer answer, Func<double, double, double> exactAnswer)
-        {
-            double maximumDifference = 0;
-            for (int i = 0; i < answer.LastLayer.Length; i++)
-            {
-                var difference = Math.Abs(answer.LastLayer[i] - exactAnswer(answer.Nodes[i], answer.TimeOfEnd));
-                if (difference > maximumDifference)
-                {
-                    maximumDifference = difference;
-                }
-            }
-            return maximumDifference;
-        }
 
         [Test]
         public void SolveTrivialEquationExactly()
         {
-            var leftBoundCondition = new Func<double, double>(x => 0);
-            var rightBoundCondition = new Func<double, double>(x => 0);
-            var startCondition = new Func<double, double>(x => 0);
-            var function = new Func<double, double, double>((x, t) => 0);
-            const int leftBoundary = 0;
-            const double rightBoundary = 1.0;
-
-            var solver = new EquationSolver(leftBoundary, rightBoundary, leftBoundCondition, rightBoundCondition,
-                startCondition, function);
+            var solver = new HeatEquationSolver();
 
             const int n = 10;
             const int k = 20;
