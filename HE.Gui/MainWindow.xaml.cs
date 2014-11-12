@@ -23,6 +23,7 @@ namespace HE.Gui
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new MainViewModel();
         }
     }
 }

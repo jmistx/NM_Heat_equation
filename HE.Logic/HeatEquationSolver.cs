@@ -5,12 +5,22 @@ namespace HE.Logic
 {
     public class HeatEquationSolver
     {
-        public double LeftBoundary = 0;
-        public double RightBoundary = 1;
-        public Func<double, double> LeftBoundCondition = t => 0;
-        public Func<double, double> RightBoundCondition = t => 0;
-        public Func<double, double> StartCondition = x => 0;
-        public Func<double, double, double> Function = (x, t) => 0;
+        public double LeftBoundary { get; set; }
+        public double RightBoundary { get; set; }
+        public Func<double, double> LeftBoundCondition { get; set; }
+        public Func<double, double> RightBoundCondition { get; set; }
+        public Func<double, double> StartCondition { get; set; }
+        public Func<double, double, double> Function { get; set; }
+
+        public HeatEquationSolver()
+        {
+            LeftBoundary = 0;
+            RightBoundary = 1;
+            LeftBoundCondition = t => 0;
+            RightBoundCondition = t => 0;
+            StartCondition = x => 0;
+            Function = (x, t) => 0;
+        }
 
         public EquationSolveAnswer Solve(double timeOfEnd, int spaceIntervals, int timeIntervals)
         {
