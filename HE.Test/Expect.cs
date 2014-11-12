@@ -5,7 +5,7 @@ namespace HE.Test
 {
     public class Expect
     {
-        public static void FloatsAreEqual(double actual, double expected)
+        public static void FloatsAreEqual(double expected, double actual)
         {
             if (Math.Abs(actual - expected) > 0.00001)
             {

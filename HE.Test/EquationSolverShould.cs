@@ -23,14 +23,13 @@ namespace HE.Test
                 startCondition, function);
 
             const int n = 20000;
-            const int k = 2000;
+            const int k = 200;
             var answer1 = solver.Solve(0.001, n, k);
 
             var maximumOfDifference = MaximumOfDifference(answer1, exactAnswer);
             Expect.FloatsAreEqual(0, maximumOfDifference);
         }
 
-        [Ignore]
         [Test]
         public void SolveTestExampleWithSecondOrderOfConvergenceForSpaceStep()
         {
@@ -46,12 +45,12 @@ namespace HE.Test
             var solver = new EquationSolver(leftBoundary, rightBoundary, leftBoundCondition, rightBoundCondition,
                 startCondition, function);
 
-            var n = 4;
+            var n = 40;
             const int k = 20;
-            var answer1 = solver.Solve(5.0, n, k);
+            var answer1 = solver.Solve(0.001, n, k);
 
-            n = 40;
-            var answer2 = solver.Solve(5.0, n, k);
+            n = 400;
+            var answer2 = solver.Solve(0.001, n, k);
 
             var maximumOfDifference1 = MaximumOfDifference(answer1, exactAnswer);
             var exponent1 = Math.Floor(Math.Abs(Math.Log10(Math.Abs(maximumOfDifference1))));
