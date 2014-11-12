@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Input;
 using ExpressionEvaluator;
 using HE.Logic;
@@ -36,10 +37,10 @@ namespace HE.Gui
             EndTime = 0.7;
             NumberOfTimeIntervals = 100;
             NumberOfSpaceIntervals = 10;
-            LeftBoundaryCondition = "0";
-            RightBoundaryCondition = "0";
-            InitialCondition = "0";
-            Function = "0";
+            LeftBoundaryCondition = "0.0";
+            RightBoundaryCondition = "0.0";
+            InitialCondition = "0.0";
+            Function = "0.0";
         }
 
         private void PopulateSecondExample()
@@ -52,11 +53,11 @@ namespace HE.Gui
             NumberOfSpaceIntervals = 10;
             NumberOfTimeIntervals = 100;
 
-            LeftBoundaryCondition = "0";
-            RightBoundaryCondition = "0";
+            LeftBoundaryCondition = "0.0";
+            RightBoundaryCondition = "0.0";
 
-            InitialCondition = "0";
-            Function = "sin(pi*x)";
+            InitialCondition = "0.0";
+            Function = "m.Sin(m.PI * p.x)";
 
             RaisePropertyChanged(null);
         }
@@ -71,29 +72,91 @@ namespace HE.Gui
             NumberOfSpaceIntervals = 10;
             NumberOfTimeIntervals = 100;
 
-            LeftBoundaryCondition = "0";
-            RightBoundaryCondition = "0";
+            LeftBoundaryCondition = "0.0";
+            RightBoundaryCondition = "0.0";
 
-            InitialCondition = "sin(pi* x)";
+            InitialCondition = "m.Sin(m.PI * p.x)";
 
             RaisePropertyChanged(null);
         }
 
         private void Calculate()
         {
+
             var solver = new HeatEquationSolver
             {
                 LeftBoundary = LeftBoundary,
                 RightBoundary = RightBoundary,
-                LeftBoundCondition = t => 0,
-                RightBoundCondition = t => 0,
-                StartCondition = x => Math.Sin(x),
-                Function = (x, t) => 0
+                LeftBoundCondition = ParseTimeArgMethod(LeftBoundaryCondition),
+                RightBoundCondition = ParseTimeArgMethod(RightBoundaryCondition),
+                StartCondition = ParsePositionArgMethod(InitialCondition),
+                Function = ParseTwoArgsMethod(Function)
             };
             var answer = solver.Solve(EndTime, NumberOfSpaceIntervals, NumberOfTimeIntervals);
             LastLayer = Populate(answer);
             RaisePropertyChanged("LastLayer");
 
+        }
+
+        private static Func<double, double> ParsePositionArgMethod(string textExpression)
+        {
+            var typeRegistry = new TypeRegistry();
+            var param = new PositionArg();
+            typeRegistry.RegisterType("m", typeof(Math));
+            typeRegistry.RegisterSymbol("p", param);
+
+            var expression = new CompiledExpression<double>(textExpression)
+            {
+                TypeRegistry = typeRegistry
+            };
+
+            Func<double, double> f = x =>
+            {
+                param.x = x;
+                return expression.Eval();
+            };
+            return f;
+        }
+
+        private static Func<double, double> ParseTimeArgMethod(string textExpression)
+        {
+            var typeRegistry = new TypeRegistry();
+            var param = new TimeArg();
+            typeRegistry.RegisterType("m", typeof(Math));
+            typeRegistry.RegisterSymbol("p", param);
+
+            var expression = new CompiledExpression<double>(textExpression)
+            {
+                TypeRegistry = typeRegistry
+            };
+
+            Func<double, double> f = t =>
+            {
+                param.t = t;
+                return expression.Eval();
+            };
+            return f;
+        }
+
+        private static Func<double, double, double> ParseTwoArgsMethod(string textExpression)
+        {
+            var typeRegistry = new TypeRegistry();
+            var param = new TwoArgs();
+            typeRegistry.RegisterType("m", typeof (Math));
+            typeRegistry.RegisterSymbol("p", param);
+
+            var expression = new CompiledExpression<double>(textExpression)
+            {
+                TypeRegistry = typeRegistry
+            };
+
+            Func<double, double, double> f = (x, t) =>
+            {
+                param.x = x;
+                param.t = t;
+                return expression.Eval();
+            };
+            return f;
         }
 
         private DataTable Populate(EquationSolveAnswer answer)
@@ -114,5 +177,21 @@ namespace HE.Gui
             dataTable.Rows.Add(newRow);
             return dataTable;
         }
+    }
+
+    public class TwoArgs
+    {
+        public double x { get; set; }
+        public double t { get; set; }
+    }
+
+    public class TimeArg
+    {
+        public double t { get; set; }
+    }
+
+    public class PositionArg
+    {
+        public double x { get; set; }
     }
 }
