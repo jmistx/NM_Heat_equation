@@ -7,8 +7,8 @@
     <ProjectGuid>{FEF71ECD-3FE3-4027-BBA0-5748903CC6B6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AP.Logic</RootNamespace>
-    <AssemblyName>AP.Logic</AssemblyName>
+    <RootNamespace>HE.Logic</RootNamespace>
+    <AssemblyName>HE.Logic</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,7 +41,6 @@
   <ItemGroup>
     <Compile Include="EquationSolveAnswer.cs" />
     <Compile Include="HeatEquationSolver.cs" />
-    <Compile Include="Face.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

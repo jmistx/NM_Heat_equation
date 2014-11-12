@@ -7,7 +7,7 @@
     <ProjectGuid>{2DC77FE2-C156-439E-A7F5-3B086AC28D95}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AP.Test</RootNamespace>
+    <RootNamespace>HE.Test</RootNamespace>
     <AssemblyName>HE.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
