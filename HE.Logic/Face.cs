@@ -1,4 +1,4 @@
-﻿namespace AP.Logic
+﻿namespace HE.Logic
 {
     public class Face
     {
