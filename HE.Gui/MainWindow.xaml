@@ -26,6 +26,7 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="32*" />
@@ -42,21 +43,23 @@
                     <TextBox Grid.Column="2" Grid.Row="3" Text="{Binding RightBoundaryCondition}"/>
                     <Label Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2">Начальные условия:</Label>
                     <TextBox Grid.Column="2" Grid.Row="4" Text="{Binding InitialCondition}" />
-                    <Label Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2">Конечный момент T</Label>
-                    <TextBox Grid.Column="2" Grid.Row="5" Text="{Binding EndTime}"/>
-                    <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2">Разбиений по X</Label>
-                    <TextBox Grid.Column="2" Grid.Row="6"  Text="{Binding NumberOfSpaceIntervals}"/>
-                    <Label Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2">Разбиений по T</Label>
-                    <TextBox Grid.Column="2" Grid.Row="7" Text="{Binding NumberOfTimeIntervals}"/>
+                    <Label Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2">f(x,t):</Label>
+                    <TextBox Grid.Column="2" Grid.Row="5" Text="{Binding Function}" />
+                    <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2">Конечный момент T</Label>
+                    <TextBox Grid.Column="2" Grid.Row="6" Text="{Binding EndTime}"/>
+                    <Label Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2">Разбиений по X</Label>
+                    <TextBox Grid.Column="2" Grid.Row="7"  Text="{Binding NumberOfSpaceIntervals}"/>
+                    <Label Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2">Разбиений по T</Label>
+                    <TextBox Grid.Column="2" Grid.Row="8" Text="{Binding NumberOfTimeIntervals}"/>
                 </Grid>
                 <Separator></Separator>
                 <Button Command="{Binding CalculateCommand}">Рассчитать</Button>
                 <Separator></Separator>
-                <Button>Тестовый пример 1</Button>
-                <Button>Тестовый пример 2</Button>
+                <Button Command="{Binding PopulateFirstExampleCommand}">Тестовый пример 1</Button>
+                <Button Command="{Binding PopulateSecondExampleCommand}">Тестовый пример 2</Button>
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <DataGrid></DataGrid>
+                <DataGrid IsReadOnly="True" ItemsSource="{Binding LastLayer}"></DataGrid>
             </StackPanel>
         </Grid>
     </Grid>
