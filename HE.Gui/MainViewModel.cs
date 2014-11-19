@@ -26,7 +26,7 @@ namespace HE.Gui
         public string RightBoundaryCondition { get; set; }
         public string InitialCondition { get; set; }
 
-        public DataTable LastLayer { get; set; }
+        public DataView LastLayer { get; set; }
 
         public MainViewModel()
         {
@@ -76,6 +76,7 @@ namespace HE.Gui
             RightBoundaryCondition = "0.0";
 
             InitialCondition = "m.Sin(m.PI * p.x)";
+            Function = "0.0";
 
             RaisePropertyChanged(null);
         }
@@ -87,18 +88,50 @@ namespace HE.Gui
             {
                 LeftBoundary = LeftBoundary,
                 RightBoundary = RightBoundary,
-                LeftBoundCondition = ParseTimeArgMethod(LeftBoundaryCondition),
-                RightBoundCondition = ParseTimeArgMethod(RightBoundaryCondition),
-                StartCondition = ParsePositionArgMethod(InitialCondition),
-                Function = ParseTwoArgsMethod(Function)
+                LeftBoundCondition = Parser.ParseTimeArgMethod(LeftBoundaryCondition),
+                RightBoundCondition = Parser.ParseTimeArgMethod(RightBoundaryCondition),
+                StartCondition = Parser.ParsePositionArgMethod(InitialCondition),
+                Function = Parser.ParseTwoArgsMethod(Function)
             };
             var answer = solver.Solve(EndTime, NumberOfSpaceIntervals, NumberOfTimeIntervals);
             LastLayer = Populate(answer);
-            RaisePropertyChanged("LastLayer");
+            RaisePropertyChanged(null);
 
         }
 
-        private static Func<double, double> ParsePositionArgMethod(string textExpression)
+        private DataView Populate(EquationSolveAnswer answer)
+        {
+            var result = new double[2, answer.Nodes.Length];
+            for (int i = 0; i < answer.Nodes.Length; i++)
+            {
+                result[0, i] = answer.Nodes[i];
+                result[1, i] = answer.LastLayer[i];
+            }
+            return BindingHelper.GetBindable2DArray(result);
+        }
+    }
+
+
+
+    public class TwoArgs
+    {
+        public double x { get; set; }
+        public double t { get; set; }
+    }
+
+    public class TimeArg
+    {
+        public double t { get; set; }
+    }
+
+    public class PositionArg
+    {
+        public double x { get; set; }
+    }
+
+    public class Parser
+    {
+        public static Func<double, double> ParsePositionArgMethod(string textExpression)
         {
             var typeRegistry = new TypeRegistry();
             var param = new PositionArg();
@@ -118,7 +151,7 @@ namespace HE.Gui
             return f;
         }
 
-        private static Func<double, double> ParseTimeArgMethod(string textExpression)
+        public static Func<double, double> ParseTimeArgMethod(string textExpression)
         {
             var typeRegistry = new TypeRegistry();
             var param = new TimeArg();
@@ -138,7 +171,7 @@ namespace HE.Gui
             return f;
         }
 
-        private static Func<double, double, double> ParseTwoArgsMethod(string textExpression)
+        public static Func<double, double, double> ParseTwoArgsMethod(string textExpression)
         {
             var typeRegistry = new TypeRegistry();
             var param = new TwoArgs();
@@ -158,40 +191,5 @@ namespace HE.Gui
             };
             return f;
         }
-
-        private DataTable Populate(EquationSolveAnswer answer)
-        {
-            var dataTable = new DataTable();
-            var columnNames = new string[answer.LastLayer.Length];
-            for (int i = 0; i < answer.LastLayer.Length; i++)
-            {
-                columnNames[i] = answer.Nodes[i].ToString("#0.###");
-                dataTable.Columns.Add(new DataColumn(columnNames[i]));
-            }
-
-            var newRow = dataTable.NewRow();
-            for (int i = 0; i < answer.LastLayer.Length; i++)
-            {
-                newRow[i] = answer.LastLayer[i];
-            }
-            dataTable.Rows.Add(newRow);
-            return dataTable;
-        }
-    }
-
-    public class TwoArgs
-    {
-        public double x { get; set; }
-        public double t { get; set; }
-    }
-
-    public class TimeArg
-    {
-        public double t { get; set; }
-    }
-
-    public class PositionArg
-    {
-        public double x { get; set; }
     }
 }
