@@ -9,24 +9,32 @@ If you somewhy interested my codestyle, I advise to start from tests.
 ```
 
 ## Input:
-- Target time / Целевое время
-- Grid step / Шаг сетки
-- Time stet / Шаг времени
-- Test case / Тестовый пример
-- Initial condition / НУ
-- Boundary condition / ГУ
-- External influence / Внешнее воздействие 
+| Parameters         | Параметры       |
+| ------------------ | -------------   |
+| Target time        | Целевое время   |
+| Grid step          | Шаг сетки       |
+| Time stet          | Шаг времени     |
+| Test case          | Тестовый пример |
+| Initial condition  | НУ              |
+| Boundary condition | ГУ              |
+| External influence | Внешнее воздействие  |
 
 
 ## Output:
-– Table with absolute error on grid nodes (for known test case) / Вывести таблицу с рассчётом погрешности в узлах сетки (для тестового примера)
-- Temperature in grid nodes as plot or number of plots / Вывести изменение температуры в узлах сетки в виде графика или набора графиков
+| Format | Формат |
+| --- | --- |
+| Table with absolute error on grid nodes (for known test case) | Вывести таблицу с рассчётом погрешности в узлах сетки (для тестового примера) |
+| Temperature in grid nodes as plot or number of plots | Вывести изменение температуры в узлах сетки в виде графика или набора графиков |
 
 ## Algorightms:
-- Explicit method / Явная разностная схема
-- Implicit method / Неявная разностная схема
+| Options | Варианты |
+| ---- | ---- |
+| Explicit method | Явная разностная схема |
+| Implicit method | Неявная разностная схема |
 
-## Teoretical task:
-- Prepare and solve analytically test case, so I can use it for tests / Подготовить и аналитически решить тестовый пример, чтобы его можно было использовать для проверки.
+## Theoretical task:
+|     |     |
+| --- | --- |
+| Prepare and solve analytically test case, so I can use it for tests | Подготовить и аналитически решить тестовый пример, чтобы его можно было использовать для проверки. |
 
 
