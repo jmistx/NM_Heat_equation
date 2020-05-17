@@ -39,4 +39,4 @@ The most interesting part here is tests on convergence order. It is like meta co
 | --- | --- |
 | Prepare and solve analytically test case, so I can use it for tests | Подготовить и аналитически решить тестовый пример, чтобы его можно было использовать для проверки. |
 
-
+!(screenshot)[./screenshot.png]
